@@ -3,6 +3,10 @@ substitutions:
   friendly_name: EYOCEAN Desk Lamp
 
   board: esp32-s3-devkitc-1
+  # Breadboard wiring (README). For the eyocean-ha carrier board
+  # (ESP32-S3 SuperMini + CC1101, pcb/) use pzloz-carrier.yaml, which
+  # includes this file and sets SCK=GPIO5 MOSI=GPIO4 MISO=GPIO2 CS=GPIO6
+  # TX=GPIO7 RX=GPIO1.
   pin_sck: GPIO9
   pin_mosi: GPIO10
   pin_miso: GPIO11

@@ -1,0 +1,4 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "eyocean")(type "KiCad")(uri "${KIPRJMOD}/eyocean.pretty")(options "")(descr "eyocean-ha project footprints"))
+)

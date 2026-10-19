@@ -1,0 +1,50 @@
+# Pzloz (and any EYOCEAN-protocol) desk lamp on the eyocean-ha carrier board:
+# ESP32-S3 SuperMini + CC1101 433 MHz module, see pcb/ and cad/.
+#
+# This file only overrides what differs from eyocean-rf.yaml: the device
+# name, the carrier board's fixed GPIO routing and your remote's codes.
+# Substitutions here win over the ones in the included package.
+#
+#   esphome run esphome/pzloz-carrier.yaml
+#
+# Pzloz remotes are 6-button (Power, Brightness, Color Temperature, Reading
+# Mode, Night Light, Timer). Learn your remote_id / xor_key from ONE button:
+#   1. Flash this file as-is; remote_receiver logs every frame (dump: all).
+#   2. Press any button on the Pzloz remote and read the 32-bit raw frame.
+#   3. remote_id = bytes 0-1, xor_key = byte2 XOR byte3 (README, "Capturing
+#      Your Own Codes"). Put both below and re-flash.
+#   4. If Night Light and Timer act swapped, exchange cmd_night_light and
+#      cmd_timer (6-button remotes disagree, see README).
+
+substitutions:
+  name: pzloz-rf
+  friendly_name: Pzloz Desk Lamp
+
+  # ESP32-S3 SuperMini. Its 4 MB flash fits the devkitc-1 board definition.
+  board: esp32-s3-devkitc-1
+
+  # Carrier board routing (pcb/scripts/board_def.py). Fixed in copper:
+  # do not change unless you rewire the board.
+  #   CC1101 pin  signal     SuperMini pin (left column)
+  #   3           GDO0  (TX)  GPIO7
+  #   4           CSN         GPIO6
+  #   5           SCK         GPIO5
+  #   6           MOSI        GPIO4
+  #   7           MISO/GDO1   GPIO2
+  #   8           GDO2  (RX)  GPIO1
+  #   2 / 1       VDD / GND   3V3 / GND (right column; 5V is never used)
+  pin_sck: GPIO5
+  pin_mosi: GPIO4
+  pin_miso: GPIO2
+  pin_cs: GPIO6
+  pin_tx: GPIO7
+  pin_rx: GPIO1
+
+  # Your remote: replace with the values from your own capture (step 3).
+  remote_id: "0x0000"
+  xor_key: "0x00"
+  cmd_night_light: "0x41"
+  cmd_timer: "0x4D"
+
+packages:
+  eyocean: !include eyocean-rf.yaml

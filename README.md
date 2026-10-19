@@ -13,6 +13,9 @@ The EYOCEAN desk lamp uses a 433.92 MHz ASK/OOK remote with an **EV1527-based** 
 | Dupont wires                       | Wiring          |
 | USB-C cable + power adapter        | Power           |
 
+An ESP32-S3 SuperMini can instead sit on the [carrier board](#carrier-board--enclosure-esp32-s3-supermini),
+which replaces the Dupont wires and fits a 3D-printed case.
+
 ### Wiring (ESP32-S3)
 
 ```
@@ -45,6 +48,89 @@ GND           →   GND
 
 > [!CAUTION]
 > CC1101 runs on 3.3V only. Do NOT connect to 5V.
+
+### Carrier board + enclosure (ESP32-S3 SuperMini)
+
+Instead of Dupont wires you can plug both modules into a small carrier PCB
+(`pcb/`) and close it in a 3D-printed box (`cad/`):
+
+| Part                                                 | Qty | Notes                                       |
+| ---------------------------------------------------- | --- | ------------------------------------------- |
+| Carrier PCB, 56 × 32 mm, 2 layers, 1.6 mm            | 1   | `pcb/production/eyocean_carrier_gerbers.zip` |
+| ESP32-S3 SuperMini                                   | 1   | solder its male headers pointing down        |
+| CC1101 433 MHz module with SMA (see `CC1101_specs/`) | 1   | male 2×4 header pointing down                |
+| 1×9 female header, 2.54 mm, 8.5 mm tall              | 2   | SuperMini sockets                            |
+| 2×4 female header, 2.54 mm, 8.5 mm tall              | 1   | CC1101 socket                                |
+| 100 nF 0603 + 10 µF 0805 capacitor                   | 1+1 | CC1101 VDD decoupling                        |
+| M2 × 25 flat-head (countersunk) bolt                 | 4   | M2 × 20 also works (head sinks into a counterbore) |
+| M2 hex nut                                           | 4   | captured under the base                      |
+| 433 MHz SMA antenna                                  | 1   | screws on outside the case                   |
+
+The carrier routes the CC1101 to the SuperMini's **left** header column
+(TX, RX, GPIO1–7). 3V3 and GND come from the right column; 5V is never
+connected. GPIO3 is left free because it is a strapping / VBUS-sense pin on
+some SuperMini clones.
+
+| CC1101 pin | Signal    | SuperMini pin | ESPHome substitution |
+| ---------- | --------- | ------------- | -------------------- |
+| 1          | GND       | GND           | –                    |
+| 2          | VDD       | 3V3           | –                    |
+| 3          | GDO0      | GPIO7         | `pin_tx`             |
+| 4          | CSN       | GPIO6         | `pin_cs`             |
+| 5          | SCK       | GPIO5         | `pin_sck`            |
+| 6          | MOSI      | GPIO4         | `pin_mosi`           |
+| 7          | MISO/GDO1 | GPIO2         | `pin_miso`           |
+| 8          | GDO2      | GPIO1         | `pin_rx`             |
+
+`esphome/pzloz-carrier.yaml` already uses these pins. It includes
+`eyocean-rf.yaml` and only overrides the name, the pins and your remote
+codes, so it works for EYOCEAN lamps too.
+
+**PCB.** The KiCad 10 project is generated from `pcb/scripts/board_def.py`
+(one table for pins, placement and nets). `pcb/scripts/build.sh`
+regenerates the schematic and the board, runs ERC and DRC (with schematic
+parity) and exports Gerbers, drill files, SVGs, a 3D render and a STEP model
+to `pcb/production/`. The board keeps copper out from under the SuperMini's
+chip antenna (the far end, opposite the USB-C port).
+
+**Enclosure.** `cad/enclosure.scad` (OpenSCAD + BOSL2; BOSL2 is a git
+submodule, so clone with `--recursive` or run
+`git submodule update --init`). It is a base and a lid that split on the
+SMA axis, 61 × 37 × 26.6 mm:
+
+- USB-C opening in the west wall, with a recess for the plug overmold.
+- Ø6.5 mm SMA hole in the east wall. The base half is a U-slot, so the
+  socketed CC1101 drops in with its SMA thread already through the wall.
+- WiFi slots in the lid roof and side walls over the SuperMini's antenna
+  end.
+- Four M2 flat-head bolts go in from the lid top, through the lid pillars,
+  the board's corner holes and the base standoffs, into M2 hex nuts in
+  hex pockets under the base. The same bolts clamp the board.
+
+Every dimension that depends on your parts (socket height, header spacer,
+SMA body length, bolt length) is a Customizer parameter. Measure your
+modules and adjust before printing.
+
+```bash
+git submodule update --init
+openscad -D 'part="bottom"' -o enclosure_bottom.3mf cad/enclosure.scad
+openscad -D 'part="lid"'    -o enclosure_lid.3mf    cad/enclosure.scad
+```
+
+Print in PETG (or PLA for indoor use) at 0.2 mm layers with 3 walls, 20 %
+infill and no supports. The base prints floor-down and the lid prints
+roof-down.
+
+Assembly:
+
+1. Solder the sockets and the two capacitors to the carrier.
+2. Plug in the SuperMini (USB-C at the board edge) and the CC1101 (SMA
+   pointing away from the SuperMini).
+3. Put the board on the base standoffs. The SMA thread drops into the
+   U-slot.
+4. Put on the lid. Push an M2 nut into each hex pocket under the base, then
+   tighten the four bolts from the top.
+5. Screw the 433 MHz antenna onto the SMA.
 
 ## Protocol Details
 
@@ -134,6 +220,24 @@ For an ESP32-C3 SuperMini, swap in:
 ```
 
 Set `remote_id` and `xor_key` from your own capture — see [Capturing Your Own Codes](#capturing-your-own-codes).
+
+### Pzloz desk lamp (6 buttons)
+
+Pzloz lamps use the same 32-bit protocol and function codes. Flash
+`esphome/pzloz-carrier.yaml` (carrier board) or `eyocean-rf.yaml` (your own
+wiring), then:
+
+1. Press any button on the Pzloz remote and read the 32-bit frame that
+   `remote_receiver` logs.
+2. Set `remote_id` (bytes 0–1) and `xor_key` (byte 2 XOR byte 3) in the
+   `substitutions:` block, then flash again.
+3. All six buttons appear in Home Assistant: Power, Brightness, Color
+   Temperature, Reading Mode, Night Light and Timer Function. If Night Light
+   and Timer act swapped, exchange `cmd_night_light` and `cmd_timer`.
+
+Please report your Pzloz remote ID and XOR key in
+[#1](https://github.com/bl4ko/eyocean-ha/issues/1) so the table above can
+be filled in.
 
 ### 2. Flash ESPHome
 
