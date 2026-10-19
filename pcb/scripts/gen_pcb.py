@@ -272,7 +272,7 @@ def route(b):
   j1, j3 = B.j1_pad, B.j3_pad
 
   # 3V3: SuperMini 3V3 pin north, along the north margin, down the cap rail
-  # (C2 and C1 pad 1 sit on it) and west into CC1101 VDD.
+  # (C1 pad 1 sits on it) and west into CC1101 VDD.
   v = B.j2_pad(3)
   b.track(B.N_3V3, [v, (v[0], 6.2), (B.CAP_RAIL_X - 1.6, 6.2),
                     (B.CAP_RAIL_X, 7.8), (B.CAP_RAIL_X, j3(2)[1]), j3(2)],
@@ -302,7 +302,7 @@ def route(b):
 
   # GND stitching vias tie the two pours together.
   for xy in ((12.0, 16.0), (38.0, 16.0), (45.0, 5.0), (45.0, 28.0),
-             (10.0, 29.0), (35.6, 12.6), (35.8, 7.4), (8.0, 4.0)):
+             (10.0, 29.0), (35.3, 11.0), (35.8, 7.4), (8.0, 4.0)):
     b.via(B.N_GND, xy)
 
 
@@ -344,7 +344,7 @@ def main():
   b.assign(fps["J1"], B.J1_PINS)
   b.assign(fps["J2"], B.J2_PINS)
   b.assign(fps["J3"], B.J3_PINS)
-  for ref, p1 in (("C1", B.C1_PAD1), ("C2", B.C2_PAD1)):
+  for ref, p1 in (("C1", B.C1_PAD1),):
     # Rotation 0 puts pad 2 east of pad 1 (away from the 3V3 rail).
     fp = b.footprint(ref, {1: p1}, rot=0)
     fp.FindPadByNumber("1").SetNet(b.net(B.N_3V3))

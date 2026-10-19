@@ -61,7 +61,7 @@ Instead of Dupont wires you can plug both modules into a small carrier PCB
 | CC1101 433 MHz module with SMA (see `CC1101_specs/`) | 1   | male 2×4 header pointing down                |
 | 1×9 female header, 2.54 mm, 8.5 mm tall              | 2   | SuperMini sockets                            |
 | 2×4 female header, 2.54 mm, 8.5 mm tall              | 1   | CC1101 socket                                |
-| 100 nF + 10 µF capacitor, 0603 (10 µF: X5R, ≥6.3 V) | 1+1 | CC1101 VDD decoupling                        |
+| 10 µF capacitor, 0603, X5R, 10 V (LCSC C19702)       | 1   | CC1101 VDD bulk; the module has its own 100 nF |
 | M2 × 25 flat-head (countersunk) bolt                 | 4   | M2 × 20 also works (head sinks into a counterbore) |
 | M2 hex nut                                           | 4   | captured under the base                      |
 | 433 MHz SMA antenna                                  | 1   | screws on outside the case                   |

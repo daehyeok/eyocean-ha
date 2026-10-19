@@ -212,7 +212,7 @@ def main():
   wire_pins("J3", conn24, j3[0], j3[1], B.J3_PINS)
 
   # Decoupling at the CC1101 VDD pin.
-  for i, (ref, x) in enumerate((("C1", 139.7), ("C2", 154.94))):
+  for i, (ref, x) in enumerate((("C1", 139.7),)):
     y = 114.3
     body.append(symbol(cap, ref, B.VALUES[ref], x, y, B.FOOTPRINTS[ref],
                        B.DESCR[ref]))

@@ -107,11 +107,10 @@ def j3_pad(n):
   return (CC_X + CC_PIN_OFF + PITCH * col, CC_Y + CC_PIN_OFF + PITCH * row)
 
 
-# Decoupling capacitors (pad-1 = +3V3 on the vertical 3V3 trace), just east
+# Decoupling capacitor (pad 1 = +3V3 on the vertical 3V3 trace), just east
 # of the CC1101 socket courtyard.
 CAP_RAIL_X = 32.4
-C1_PAD1 = (CAP_RAIL_X, 11.0)  # 100 nF 0603
-C2_PAD1 = (CAP_RAIL_X, 8.8)  # 10 uF 0603 (6.3 V+ X5R)
+C1_PAD1 = (CAP_RAIL_X, 11.0)  # 10 uF 0603 X5R (single cap; CC1101 module has its own 100 nF)
 
 # WiFi antenna keep-out under the SuperMini's far (east) end.
 ANT_KEEPOUT = (17.0, 9.8, 23.2, 22.2)  # x0, y0, x1, y1
@@ -121,7 +120,6 @@ FOOTPRINTS = {
     "J2": "Connector_PinSocket_2.54mm:PinSocket_1x09_P2.54mm_Vertical",
     "J3": "eyocean:CC1101_Socket_2x04_P2.54mm_TopView",
     "C1": "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder",
-    "C2": "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder",
     "H1": "MountingHole:MountingHole_2.2mm_M2",
     "H2": "MountingHole:MountingHole_2.2mm_M2",
     "H3": "MountingHole:MountingHole_2.2mm_M2",
@@ -131,8 +129,7 @@ VALUES = {
     "J1": "SuperMini_L (TX..GPIO7)",
     "J2": "SuperMini_R (5V..GPIO8)",
     "J3": "CC1101_433MHz",
-    "C1": "100nF",
-    "C2": "10uF",
+    "C1": "10uF",
     "H1": "M2",
     "H2": "M2",
     "H3": "M2",
@@ -142,8 +139,7 @@ DESCR = {
     "J1": "ESP32-S3 SuperMini left column (TX, RX, GPIO1-7)",
     "J2": "ESP32-S3 SuperMini right column (5V, GND, 3V3, GPIO13-8)",
     "J3": "CC1101 433 MHz SMA module (CC1101_specs/), 3.3 V only",
-    "C1": "CC1101 VDD decoupling",
-    "C2": "CC1101 VDD decoupling",
+    "C1": "CC1101 VDD bulk decoupling, 10 uF X5R >= 10 V",
     "H1": "M2 case mounting hole",
     "H2": "M2 case mounting hole",
     "H3": "M2 case mounting hole",
