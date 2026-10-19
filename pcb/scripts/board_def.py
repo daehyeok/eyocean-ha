@@ -114,8 +114,9 @@ def j3_pad(n):
   return (CC_X + CC_COL_OFF + PITCH * col, CC_Y + CC_ROW_OFF + PITCH * row)
 
 
-# Decoupling capacitor (pad 1 = +3V3 on the vertical 3V3 trace), just east
-# of the CC1101 socket courtyard.
+# Decoupling capacitor on the BACK (B.Cu): clear of the CC1101 module above
+# and solderable after the modules are fitted; the case leaves 3.5 mm under
+# the board. Pad 1 = +3V3.
 CAP_RAIL_X = 32.4
 C1_PAD1 = (CAP_RAIL_X, 11.0)  # 10 uF 0603 X5R (single cap; CC1101 module has its own 100 nF)
 

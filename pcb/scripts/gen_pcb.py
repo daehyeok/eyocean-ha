@@ -24,6 +24,7 @@ ORIGIN = (100.0, 100.0)  # board north-west corner on the KiCad page
 
 W_SIG = 0.25
 W_PWR = 0.5
+W_PWR_3V3 = 0.6
 VIA_D = 0.6
 VIA_DRILL = 0.3
 
@@ -37,6 +38,16 @@ def to_local(v):
 
 
 CC_FP = "CC1101_Socket_2x04_P2.54mm_TopView"
+
+
+def flip_to_back(fp):
+  """Flip a footprint to B.Cu top/bottom about its own position."""
+  pos = fp.GetPosition()
+  direction = getattr(pcbnew, "FLIP_DIRECTION_TOP_BOTTOM", None)
+  if direction is not None:
+    fp.Flip(pos, direction)
+  else:  # older API: bool aFlipLeftRight
+    fp.Flip(pos, False)
 
 
 def set_description(fp, text):
@@ -271,12 +282,17 @@ def route(b):
   f, bk = pcbnew.F_Cu, pcbnew.B_Cu
   j1, j3 = B.j1_pad, B.j3_pad
 
-  # 3V3: SuperMini 3V3 pin north, along the north margin, down the cap rail
-  # (C1 pad 1 sits on it) and west into CC1101 VDD.
+  # 3V3 on B.Cu, 0.6 mm: SuperMini 3V3 pin, along the north margin, diagonally
+  # down to C1 pad 1 (C1 is on the back, clear of the CC1101 and easy to
+  # solder after the modules are fitted) and on into CC1101 VDD.
   v = B.j2_pad(3)
-  b.track(B.N_3V3, [v, (v[0], 6.2), (B.CAP_RAIL_X - 1.6, 6.2),
-                    (B.CAP_RAIL_X, 7.8), (B.CAP_RAIL_X, j3(2)[1]), j3(2)],
-          f, W_PWR)
+  c1 = B.C1_PAD1
+  vdd = j3(2)
+  north_y = 5.39
+  b.track(B.N_3V3, [v, (v[0], v[1] - 1.1), (v[0] + 1.89, north_y),
+                    (c1[0] - (c1[1] - north_y), north_y), c1,
+                    (vdd[0] + (vdd[1] - c1[1]), c1[1]), vdd],
+          bk, W_PWR_3V3)
 
   # Signals: each SuperMini pad drops south into a channel under the left
   # header row, runs east, turns north in the corridor between the antenna
@@ -345,8 +361,13 @@ def main():
   b.assign(fps["J2"], B.J2_PINS)
   b.assign(fps["J3"], B.J3_PINS)
   for ref, p1 in (("C1", B.C1_PAD1),):
-    # Rotation 0 puts pad 2 east of pad 1 (away from the 3V3 rail).
+    # Rotation 0 puts pad 2 east of pad 1, then flip to the back about the
+    # footprint centre line (top/bottom), which keeps both pads in place.
     fp = b.footprint(ref, {1: p1}, rot=0)
+    flip_to_back(fp)
+    got = to_local(fp.FindPadByNumber("1").GetPosition())
+    assert abs(got[0] - p1[0]) < 1e-3 and abs(got[1] - p1[1]) < 1e-3, got
+    assert fp.GetLayer() == pcbnew.B_Cu
     fp.FindPadByNumber("1").SetNet(b.net(B.N_3V3))
     fp.FindPadByNumber("2").SetNet(b.net(B.N_GND))
   for i, xy in enumerate(B.HOLES):

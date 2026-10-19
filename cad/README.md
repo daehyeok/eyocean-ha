@@ -199,13 +199,15 @@ the [top-level README](../README.md#carrier-board--enclosure-esp32-s3-supermini)
 
 ## Assembly
 
-1. **Solder the carrier.** Fit the 10 µF capacitor. Put the SuperMini (USB-C
+1. **Solder the carrier.** Put the SuperMini (USB-C
    at the board's short edge) and the CC1101 (SMA pointing away from the
    SuperMini) on their pads, with each header's plastic spacer flat on the
    carrier. Push the CC1101 fully toward the board's SMA end so its edge
    lines up with the board edge. Solder from below.
 2. **Trim the pin tails** under the carrier to ≤ 2.5 mm with flush
-   cutters. The base only has 3.5 mm of room under the board.
+   cutters. The base only has 3.5 mm of room under the board. Then solder
+   the 10 µF capacitor on the back of the carrier, next to the CC1101 pins
+   (0.95 mm tall at most, so it clears the floor by about 2.5 mm).
 3. **Drop the board into the base.** The holes land on the four standoffs,
    the SMA thread goes into the U-slot and out through the east wall, and
    the USB-C lines up with the west opening.

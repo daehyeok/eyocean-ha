@@ -59,7 +59,7 @@ carrier PCB (`pcb/`) and close it in a 3D-printed box (`cad/`):
 | Carrier PCB, 53.5 × 32 mm, 2 layers, 1.6 mm          | 1   | `pcb/production/eyocean_carrier_jlcpcb.zip`              |
 | ESP32-S3 SuperMini                                   | 1   | male headers pointing down, soldered to the carrier      |
 | CC1101 433 MHz module with SMA (see `CC1101_specs/`) | 1   | its male 2×4 header soldered to the carrier              |
-| 10 µF capacitor, 0603, X5R, 10 V (LCSC C19702)       | 1   | CC1101 VDD bulk; the module has its own 100 nF           |
+| 10 µF capacitor, 0603, X5R, 10 V (LCSC C19702)       | 1   | on the back; CC1101 VDD bulk (module has its own 100 nF) |
 | M2 × 16 flat-head (countersunk) bolt                 | 4   | flush; M2 × 14 / × 12 also work (counterbore)            |
 | M2 hex nut                                           | 4   | captured under the base                                  |
 | 433 MHz SMA antenna                                  | 1   | screws on outside the case                               |
@@ -109,10 +109,11 @@ cad/export.sh                 # -> cad/export/enclosure_{bottom,lid}.{stl,3mf}
 
 Assembly in short:
 
-1. Solder the capacitor, then the SuperMini (USB-C at the board edge) and
+1. Solder the SuperMini (USB-C at the board edge) and
    the CC1101 (SMA end flush with the board edge), with header spacers flat
    on the carrier.
-2. Trim the pin tails under the board to ≤ 2.5 mm.
+2. Trim the pin tails under the board to ≤ 2.5 mm, then solder the 10 µF
+   capacitor on the back (it sits in the 3.5 mm gap above the case floor).
 3. Drop the board into the base. The SMA thread goes into the U-slot.
 4. Close the lid, push an M2 nut into each hex pocket under the base, and
    tighten the four bolts from the top.
