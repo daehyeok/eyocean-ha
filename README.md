@@ -56,7 +56,7 @@ Instead of Dupont wires you can plug both modules into a small carrier PCB
 
 | Part                                                 | Qty | Notes                                       |
 | ---------------------------------------------------- | --- | ------------------------------------------- |
-| Carrier PCB, 56 × 32 mm, 2 layers, 1.6 mm            | 1   | `pcb/production/eyocean_carrier_gerbers.zip` |
+| Carrier PCB, 56 × 32 mm, 2 layers, 1.6 mm            | 1   | `pcb/production/eyocean_carrier_jlcpcb.zip` |
 | ESP32-S3 SuperMini                                   | 1   | solder its male headers pointing down        |
 | CC1101 433 MHz module with SMA (see `CC1101_specs/`) | 1   | male 2×4 header pointing down                |
 | 1×9 female header, 2.54 mm, 8.5 mm tall              | 2   | SuperMini sockets                            |

@@ -307,12 +307,13 @@ module board_and_modules() {
 }
 
 if (part == "bottom") {
-  bottom_case();
+  // Orient for printing: floor on the bed.
+  up(-z_bot) bottom_case();
 } else if (part == "lid") {
   // Orient for printing: roof on the bed.
   up(z_top) xrot(180) top_lid();
 } else if (part == "print") {
-  bottom_case();
+  up(-z_bot) bottom_case();
   fwd(OUT.y + 8) up(z_top) xrot(180) top_lid();
 } else {
   bottom_case();

@@ -26,7 +26,7 @@ done
 SHARE="$MNT/usr/share/kicad"
 cli() { "$APPIMAGE" kicad-cli "$@"; }
 
-mkdir -p "$REPORTS" "$OUT/gerbers"
+mkdir -p "$REPORTS"
 cd "$PCB_DIR"
 
 echo "== schematic"
@@ -40,13 +40,20 @@ cli pcb drc --schematic-parity --severity-all --exit-code-violations \
   --refill-zones --save-board -o "$REPORTS/drc.rpt" "$NAME.kicad_pcb"
 
 echo "== exports"
-rm -f "$OUT"/gerbers/*
-cli pcb export gerbers --board-plot-params -o "$OUT/gerbers/" "$NAME.kicad_pcb" \
-  || cli pcb export gerbers -l F.Cu,B.Cu,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,Edge.Cuts \
-       -o "$OUT/gerbers/" "$NAME.kicad_pcb"
-cli pcb export drill --format excellon --excellon-separate-th \
-  --generate-map --map-format gerberx2 -o "$OUT/gerbers/" "$NAME.kicad_pcb"
-(cd "$OUT/gerbers" && rm -f "../${NAME}_gerbers.zip" && zip -q "../${NAME}_gerbers.zip" ./*)
+# JLCPCB fab set (their KiCad guide): Protel extensions, no X2/netlist
+# attributes, no soldermask subtraction; Excellon mm, absolute origin,
+# decimal zeros, alternate oval format, separate PTH/NPTH files.
+JLC="$OUT/jlcpcb"
+rm -rf "$OUT/gerbers" "$OUT/${NAME}_gerbers.zip" "$JLC"
+mkdir -p "$JLC"
+cli pcb export gerbers --no-x2 --no-netlist \
+  -l F.Cu,B.Cu,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,Edge.Cuts \
+  -o "$JLC/" "$NAME.kicad_pcb"
+cli pcb export drill --format excellon --drill-origin absolute \
+  --excellon-units mm --excellon-zeros-format decimal \
+  --excellon-oval-format alternate --excellon-separate-th \
+  -o "$JLC/" "$NAME.kicad_pcb"
+(cd "$JLC" && rm -f "../${NAME}_jlcpcb.zip" && zip -q "../${NAME}_jlcpcb.zip" ./*)
 cli pcb export svg --mode-single --page-size-mode 2 --exclude-drawing-sheet \
   -l F.Cu,F.Silkscreen,F.Fab,Edge.Cuts -o "$OUT/${NAME}_top.svg" "$NAME.kicad_pcb"
 cli pcb export svg --mode-single --page-size-mode 2 --exclude-drawing-sheet \
@@ -58,4 +65,4 @@ cli pcb export step --subst-models --force -o "$OUT/${NAME}.step" "$NAME.kicad_p
   >/dev/null || echo "(STEP export skipped)"
 
 echo "== done: $OUT"
-ls -1 "$OUT" "$OUT/gerbers"
+ls -1 "$OUT" "$JLC"
