@@ -111,7 +111,7 @@ def j3_pad(n):
 # of the CC1101 socket courtyard.
 CAP_RAIL_X = 32.4
 C1_PAD1 = (CAP_RAIL_X, 11.0)  # 100 nF 0603
-C2_PAD1 = (CAP_RAIL_X, 8.8)  # 10 uF 0805
+C2_PAD1 = (CAP_RAIL_X, 8.8)  # 10 uF 0603 (6.3 V+ X5R)
 
 # WiFi antenna keep-out under the SuperMini's far (east) end.
 ANT_KEEPOUT = (17.0, 9.8, 23.2, 22.2)  # x0, y0, x1, y1
@@ -121,7 +121,7 @@ FOOTPRINTS = {
     "J2": "Connector_PinSocket_2.54mm:PinSocket_1x09_P2.54mm_Vertical",
     "J3": "eyocean:CC1101_Socket_2x04_P2.54mm_TopView",
     "C1": "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder",
-    "C2": "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder",
+    "C2": "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder",
     "H1": "MountingHole:MountingHole_2.2mm_M2",
     "H2": "MountingHole:MountingHole_2.2mm_M2",
     "H3": "MountingHole:MountingHole_2.2mm_M2",
