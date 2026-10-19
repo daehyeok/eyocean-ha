@@ -51,20 +51,22 @@ GND           →   GND
 
 ### Carrier board + enclosure (ESP32-S3 SuperMini)
 
-Instead of Dupont wires you can plug both modules into a small carrier PCB
-(`pcb/`) and close it in a 3D-printed box (`cad/`):
+Instead of Dupont wires you can solder both modules straight onto a small
+carrier PCB (`pcb/`) and close it in a 3D-printed box (`cad/`):
 
-| Part                                                 | Qty | Notes                                       |
-| ---------------------------------------------------- | --- | ------------------------------------------- |
-| Carrier PCB, 56 × 32 mm, 2 layers, 1.6 mm            | 1   | `pcb/production/eyocean_carrier_jlcpcb.zip` |
-| ESP32-S3 SuperMini                                   | 1   | solder its male headers pointing down        |
-| CC1101 433 MHz module with SMA (see `CC1101_specs/`) | 1   | male 2×4 header pointing down                |
-| 1×9 female header, 2.54 mm, 8.5 mm tall              | 2   | SuperMini sockets                            |
-| 2×4 female header, 2.54 mm, 8.5 mm tall              | 1   | CC1101 socket                                |
-| 10 µF capacitor, 0603, X5R, 10 V (LCSC C19702)       | 1   | CC1101 VDD bulk; the module has its own 100 nF |
-| M2 × 25 flat-head (countersunk) bolt                 | 4   | M2 × 20 also works (head sinks into a counterbore) |
-| M2 hex nut                                           | 4   | captured under the base                      |
-| 433 MHz SMA antenna                                  | 1   | screws on outside the case                   |
+| Part                                                 | Qty | Notes                                                    |
+| ---------------------------------------------------- | --- | -------------------------------------------------------- |
+| Carrier PCB, 53.5 × 32 mm, 2 layers, 1.6 mm          | 1   | `pcb/production/eyocean_carrier_jlcpcb.zip`              |
+| ESP32-S3 SuperMini                                   | 1   | male headers pointing down, soldered to the carrier      |
+| CC1101 433 MHz module with SMA (see `CC1101_specs/`) | 1   | its male 2×4 header soldered to the carrier              |
+| 10 µF capacitor, 0603, X5R, 10 V (LCSC C19702)       | 1   | CC1101 VDD bulk; the module has its own 100 nF           |
+| M2 × 16 flat-head (countersunk) bolt                 | 4   | flush; M2 × 14 / × 12 also work (counterbore)            |
+| M2 hex nut                                           | 4   | captured under the base                                  |
+| 433 MHz SMA antenna                                  | 1   | screws on outside the case                               |
+
+No sockets are used: each module rests on its header's plastic spacer,
+2.5 mm above the carrier. The CC1101's edge lines up with the board's SMA
+end so the SMA barrel hangs past it.
 
 The carrier routes the CC1101 to the SuperMini's **left** header column
 (TX, RX, GPIO1–7). 3V3 and GND come from the right column; 5V is never
@@ -89,46 +91,30 @@ codes, so it works for EYOCEAN lamps too.
 **PCB.** The KiCad 10 project is generated from `pcb/scripts/board_def.py`
 (one table for pins, placement and nets). `pcb/scripts/build.sh`
 regenerates the schematic and the board, runs ERC and DRC (with schematic
-parity) and exports Gerbers, drill files, SVGs, a 3D render and a STEP model
-to `pcb/production/`. The board keeps copper out from under the SuperMini's
-chip antenna (the far end, opposite the USB-C port).
+parity) and exports the JLCPCB Gerber zip, SVGs, a 3D render and a STEP
+model to `pcb/production/`. The board keeps copper out from under the
+SuperMini's chip antenna (the far end, opposite the USB-C port).
 
-**Enclosure.** `cad/enclosure.scad` (OpenSCAD + BOSL2; BOSL2 is a git
-submodule, so clone with `--recursive` or run
-`git submodule update --init`). It is a base and a lid that split on the
-SMA axis, 61 × 37 × 26.6 mm:
-
-- USB-C opening in the west wall, with a recess for the plug overmold.
-- Ø6.5 mm SMA hole in the east wall. The base half is a U-slot, so the
-  socketed CC1101 drops in with its SMA thread already through the wall.
-- WiFi slots in the lid roof and side walls over the SuperMini's antenna
-  end.
-- Four M2 flat-head bolts go in from the lid top, through the lid pillars,
-  the board's corner holes and the base standoffs, into M2 hex nuts in
-  hex pockets under the base. The same bolts clamp the board.
-
-Every dimension that depends on your parts (socket height, header spacer,
-SMA body length, bolt length) is a Customizer parameter. Measure your
-modules and adjust before printing.
+**Enclosure.** A base and a lid, 60.5 × 37 × 18.1 mm, split on the SMA
+axis. It has a USB-C opening, an SMA U-slot, WiFi slots over the antenna,
+and four flush M2 × 16 bolts into hex nuts under the base. See
+**[`cad/README.md`](cad/README.md)** for the build guide: prerequisites,
+how every height is calculated, what to measure on your parts, export
+commands, print settings and assembly.
 
 ```bash
-git submodule update --init
-openscad -D 'part="bottom"' -o enclosure_bottom.3mf cad/enclosure.scad
-openscad -D 'part="lid"'    -o enclosure_lid.3mf    cad/enclosure.scad
+git submodule update --init   # BOSL2
+cad/export.sh                 # -> cad/export/enclosure_{bottom,lid}.{stl,3mf}
 ```
 
-Print in PETG (or PLA for indoor use) at 0.2 mm layers with 3 walls, 20 %
-infill and no supports. The base prints floor-down and the lid prints
-roof-down.
+Assembly in short:
 
-Assembly:
-
-1. Solder the sockets and the two capacitors to the carrier.
-2. Plug in the SuperMini (USB-C at the board edge) and the CC1101 (SMA
-   pointing away from the SuperMini).
-3. Put the board on the base standoffs. The SMA thread drops into the
-   U-slot.
-4. Put on the lid. Push an M2 nut into each hex pocket under the base, then
+1. Solder the capacitor, then the SuperMini (USB-C at the board edge) and
+   the CC1101 (SMA end flush with the board edge), with header spacers flat
+   on the carrier.
+2. Trim the pin tails under the board to ≤ 2.5 mm.
+3. Drop the board into the base. The SMA thread goes into the U-slot.
+4. Close the lid, push an M2 nut into each hex pocket under the base, and
    tighten the four bolts from the top.
 5. Screw the 433 MHz antenna onto the SMA.
 

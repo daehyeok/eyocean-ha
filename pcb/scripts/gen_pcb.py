@@ -322,7 +322,7 @@ def silk(b):
   b.text("WiFi ANT", (20.1, 16.0), size=1.0, angle=90)
   b.text("CC1101 433MHz", (41.0, 22.5))
   b.text("SMA ->", (48.0, 16.0), angle=90)
-  b.text("eyocean-ha carrier v1.0", (40.0, 30.0))
+  b.text("eyocean-ha carrier v1.0", (37.5, 30.0))
   b.text("TX", (B.j1_pad(1)[0] + 0.2, 27.3))
   b.text("5V", (B.j2_pad(1)[0], 5.7), size=0.8)
   b.text("3V3", (B.j2_pad(3)[0] + 0.3, 4.9), size=0.8)

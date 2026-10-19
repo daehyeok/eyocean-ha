@@ -6,16 +6,19 @@
 // captured in pockets under the base. The same four bolts clamp the board.
 //
 // The shell splits on the CC1101 SMA axis: the base wall has a U-slot so the
-// socketed CC1101 drops in with its SMA thread already through the east
-// wall; the lid closes the hole. USB-C opens in the west wall, WiFi slots sit
-// over and beside the SuperMini's ceramic antenna.
+// assembled board drops in with the CC1101's SMA thread already through the
+// east wall; the lid closes the hole. USB-C opens in the west wall, WiFi
+// slots sit over and beside the SuperMini's ceramic antenna.
+//
+// Both modules are soldered straight onto the carrier through their male
+// headers (no sockets): each module rests on its header's plastic spacer.
+// See cad/README.md for the full height stack-up.
 //
 // Frame: x/y follow pcb/scripts/board_def.py (origin = board north-west
 // corner, +x east toward the SMA) with y negated (scad +y = north);
 // z = 0 is the carrier board's bottom face.
 //
-//   openscad -D 'part="bottom"' -o enclosure_bottom.3mf cad/enclosure.scad
-//   openscad -D 'part="lid"'    -o enclosure_lid.3mf    cad/enclosure.scad
+//   cad/export.sh            # STL + 3MF of both parts, print orientation
 
 include <BOSL2/std.scad>
 
@@ -24,16 +27,21 @@ include <BOSL2/std.scad>
 part = "assembly";  // [assembly, bottom, lid, print]
 
 /* [Carrier board (pcb/scripts/board_def.py)] */
-board_w = 56;       // [40:0.5:80]
+board_w = 53.5;     // [40:0.5:80]
 board_h = 32;       // [20:0.5:50]
 pcb_t = 1.6;        // [0.8:0.1:2.0]
 hole_inset = 3;     // [2:0.5:5]
 
 /* [Module stack-up - measure yours] */
-// Female socket body height above the carrier (low-profile: 5.0)
-socket_h = 8.5;     // [4:0.1:12]
-// Plastic spacer of the male headers soldered to the modules
-pin_spacer_h = 2.5; // [0:0.1:4]
+// Female socket height between carrier and header spacer (0 = soldered
+// directly; 8.5 = standard socket, 5.0 = low-profile socket)
+socket_h = 0;       // [0:0.1:12]
+// Plastic spacer of the SuperMini's male header (carrier top to SuperMini)
+sm_spacer_h = 2.5;  // [0:0.1:4]
+// Plastic spacer of the CC1101's male header (carrier top to CC1101)
+cc_spacer_h = 2.5;  // [0:0.1:4]
+// Longest pin tail left under the carrier after trimming
+pin_tail = 2.5;     // [0.5:0.1:5]
 // ESP32-S3 SuperMini board
 sm_len = 22.52;
 sm_wid = 18;
@@ -43,13 +51,17 @@ usb_shell = [8.94, 3.26];
 usb_overhang = 0.3; // [0:0.1:1.5]
 // CC1101 module (CC1101_specs/CC1101-Product-size): A x B, C, D
 cc_x = 25.5;
-cc_y = 10.75;
+// Module north edge (board y). Its 2x04 header rows are centred on the
+// 15 mm edge, so row 1 (board y 12.25) is (15 - 3 x 2.54) / 2 = 3.69 in.
+cc_y = 8.56;
 cc_len = 28;
 cc_wid = 15;
 cc_t = 1.2;
 cc_h = 5.0;
 // SMA axis from the module's north edge (B - I = 15 - 8.4)
 sma_from_n = 6.6;
+// SMA axis above the CC1101 board's bottom face (centred on a 1.2 board)
+sma_axis_h = 0.6;   // [-2:0.05:3]
 // Unthreaded SMA body between module edge and thread start
 sma_body = 2.5;     // [0:0.1:5]
 sma_thread = [6.3, 8.0];  // M, L
@@ -60,12 +72,15 @@ floor_t = 2.0;      // [1.2:0.2:3]
 roof_t = 2.0;       // [1.2:0.2:3]
 // Board edge to inner wall
 gap = 0.5;          // [0.2:0.1:1.5]
-// Board bottom above the floor (socket solder tails)
+// Board bottom above the floor (room for the trimmed pin tails)
 standoff_h = 3.5;   // [2:0.5:6]
 // Air above the tallest module part
 top_clear = 1.5;    // [0.5:0.25:4]
 corner_r = 3;       // [1:0.5:5]
+// Lid clamp pillars (stand on the board top)
 pillar_d = 5.5;     // [5:0.25:7]
+// Base standoffs (carry the board, hold the hex nuts)
+standoff_d = 6.5;   // [5.5:0.25:8]
 // Tongue height (inner half of the wall) at the split
 lip_h = 1.5;        // [0.8:0.1:3]
 lip_clear = 0.15;   // [0:0.05:0.4]
@@ -81,25 +96,27 @@ slot_n = 4;         // [2:1:6]
 slot_pitch = 2.6;   // [2:0.1:4]
 
 /* [Fasteners: M2 flat head + M2 hex nut] */
-// Shorter bolts sink the head into a counterbore in the lid pillar
-bolt_len = 25;      // [16, 18, 20, 25, 30]
+// Head is flush at 16; shorter bolts sink into a counterbore
+bolt_len = 16;      // [12, 14, 16]
 bolt_hole_d = 2.2;  // [2.0:0.05:2.6]
 cs_d = 4.2;         // [3.8:0.1:4.8]
 nut_af = 4.1;       // [4.0:0.05:4.4]
 nut_h = 1.6;        // [1.2:0.1:2.0]
-// Hex pocket depth from the base bottom (nut seats at its top)
-nut_pocket = 3.2;   // [2.0:0.1:4.5]
+// Hex pocket depth from the base bottom (nut seats at its top).
+// 0 = auto: as deep as needed for a flush head, within what the base allows
+nut_pocket = 0;     // [0:0.1:4.5]
 
 /* [Hidden] */
 $fn = 96;
 epsilon = 0.01;
 layer_height = 0.2;  // general utility part
 
-// --- derived stack-up -------------------------------------------------------
-module_z = pcb_t + socket_h + pin_spacer_h;  // module PCB bottoms
-usb_z = module_z + sm_t + usb_shell.y / 2;
-sma_z = module_z + cc_t / 2;
-parts_top = max(module_z + sm_t + usb_shell.y, module_z + cc_h);
+// --- derived stack-up (see cad/README.md) -----------------------------------
+sm_z = pcb_t + socket_h + sm_spacer_h;  // SuperMini board bottom
+cc_z = pcb_t + socket_h + cc_spacer_h;  // CC1101 board bottom
+usb_z = sm_z + sm_t + usb_shell.y / 2;
+sma_z = cc_z + sma_axis_h;
+parts_top = max(sm_z + sm_t + usb_shell.y, cc_z + cc_h);
 floor_top = -standoff_h;
 z_bot = floor_top - floor_t;
 roof_bot = parts_top + top_clear;
@@ -120,7 +137,14 @@ sm_c = [sm_len / 2, -board_h / 2];
 ant_x = sm_len - 3;  // SuperMini chip antenna, far (east) end
 
 // Bolt tip 0.3 mm past the nut; the head sits flush or in a counterbore.
-tip_z = z_bot + nut_pocket - nut_h - 0.3;
+// Auto nut pocket: the depth that puts the head exactly flush, clamped
+// between a nut + 0.6 mm and leaving 1.2 mm of standoff under the board.
+nut_pocket_min = nut_h + 0.6;
+nut_pocket_max = floor_t + standoff_h - 1.2;
+nut_pk = nut_pocket > 0 ? nut_pocket
+       : min(max(z_top - bolt_len - z_bot + nut_h + 0.3, nut_pocket_min),
+             nut_pocket_max);
+tip_z = z_bot + nut_pk - nut_h - 0.3;
 head_z = tip_z + bolt_len;           // top of the flat head
 head_recess = max(0, z_top - head_z);
 cs_depth = (cs_d - bolt_hole_d) / 2;  // 90 deg countersink
@@ -135,16 +159,24 @@ thick_z = head_z - cs_depth - 1.0;  // bottom of the thick pillar section
 assert(head_z <= z_top + epsilon,
        str("bolt_len ", bolt_len, " too long: max ", z_top - tip_z));
 assert(tip_z >= z_bot + 0.3, "nut_pocket too shallow for nut_h");
-assert(nut_pocket <= floor_t + standoff_h - 1.2,
+assert(nut_pk <= nut_pocket_max,
        "nut_pocket reaches the board");
 assert(head_z - cs_depth > pcb_t + 3,
        str("bolt_len ", bolt_len, " too short to reach the nut"));
 assert(cc_x + cc_len + sma_body + sma_thread.y > x_in1 + wall + 3,
        "less than 3 mm of SMA thread outside the wall");
+assert(cc_x + cc_len >= board_w || sma_z - sma_thread.x / 2 >= pcb_t + 0.2,
+       "SMA barrel hits the carrier board: shorten board_w or raise cc_z");
+assert(standoff_h >= pin_tail + 0.5,
+       str("standoff_h too low for ", pin_tail, " mm pin tails: trim them"));
+assert(nut_af / cos(30) + 1.4 <= standoff_d,
+       "standoff_d too thin around the nut pocket");
 
 echo(str("Case outside: ", OUT.x, " x ", OUT.y, " x ", z_top - z_bot, " mm"));
+echo(str("SuperMini board bottom z = ", sm_z, ", CC1101 board bottom z = ",
+         cc_z, ", tallest part z = ", parts_top));
 echo(str("Bolts: 4x M2x", bolt_len, " flat head (head ", head_recess,
-         " mm below the lid top), 4x M2 hex nut ", nut_pocket,
+         " mm below the lid top), 4x M2 hex nut ", nut_pk,
          " mm deep in the base"));
 echo(str("Split at z = ", split_z, " (SMA axis); USB-C centre ",
          usb_z - z_bot, " mm above the base bottom"));
@@ -238,7 +270,7 @@ module bolt_bores() {
                    h = head_recess + 1, anchor = BOTTOM, $fn = 48);
     // Hex nut trap, open at the base bottom.
     translate([0, 0, z_bot - epsilon])
-      cyl(d = nut_af / cos(30), h = nut_pocket + epsilon, anchor = BOTTOM,
+      cyl(d = nut_af / cos(30), h = nut_pk + epsilon, anchor = BOTTOM,
           $fn = 6, spin = 30);
   }
 }
@@ -249,9 +281,9 @@ module bottom_case() {
     union() {
       intersection() { shell(); below(split_z); }
       tongue(split_z - epsilon, split_z + lip_h);
-      for (h = holes)  // board standoffs
+      for (h = holes)  // board standoffs, nut pockets inside
         translate([h.x, h.y, floor_top - epsilon])
-          cyl(d = pillar_d, h = standoff_h + epsilon, anchor = BOTTOM,
+          cyl(d = standoff_d, h = standoff_h + epsilon, anchor = BOTTOM,
               chamfer2 = 0.4);
     }
     usb_cut();
@@ -271,10 +303,13 @@ module top_lid() {
         translate([h.x, h.y, pcb_t]) {
           cyl(d = pillar_d, h = roof_bot - pcb_t + epsilon, anchor = BOTTOM,
               chamfer1 = 0.4);
-          if (cbore)  // thicker around the head counterbore
+          // Thicker around the head counterbore, below the roof. A shallow
+          // counterbore that stays inside the roof needs no extra pillar.
+          if (cbore && roof_bot - thick_z > 0.3)
             translate([0, 0, thick_z - pcb_t])
               cyl(d = lid_pillar_d, h = roof_bot - thick_z + epsilon,
-                  anchor = BOTTOM, chamfer1 = 1.0);
+                  anchor = BOTTOM,
+                  chamfer1 = min(1.0, (roof_bot - thick_z) / 2));
         }
     }
     usb_cut();
@@ -288,18 +323,21 @@ module top_lid() {
 module board_and_modules() {
   color("darkgreen") translate([0, -board_h, 0])
     cube([board_w, board_h, pcb_t]);
+  // Male-header spacers (plus a socket body when socket_h > 0).
   color("#222") for (y = [board_h / 2 - 7.62, board_h / 2 + 7.62])
-    translate([1.4 - 1.27, -y - 1.27, pcb_t]) cube([22.86, 2.54, socket_h]);
-  color("#222") translate([cc_x + 1.5 - 1.27, -(cc_y + 1.5 + 8.89), pcb_t])
-    cube([5.08, 10.16, socket_h]);
-  color("royalblue") translate([0, -board_h / 2 - sm_wid / 2, module_z])
+    translate([1.4 - 1.27, -y - 1.27, pcb_t])
+      cube([22.86, 2.54, sm_z - pcb_t]);
+  color("#222") translate([cc_x + 1.5 - 1.27,
+                           -(cc_y + (cc_wid - 7.62) / 2 + 7.62 + 1.27), pcb_t])
+    cube([5.08, 10.16, cc_z - pcb_t]);
+  color("royalblue") translate([0, -board_h / 2 - sm_wid / 2, sm_z])
     cube([sm_len, sm_wid, sm_t]);
   color("silver") translate([-usb_overhang, sm_c.y, usb_z])
     cuboid([7.3, usb_shell.x, usb_shell.y], rounding = 1, edges = "X",
            anchor = LEFT);
-  color("white") translate([ant_x - 1, sm_c.y, module_z + sm_t])
+  color("white") translate([ant_x - 1, sm_c.y, sm_z + sm_t])
     cuboid([2, 6, 1], anchor = BOTTOM);
-  color("purple") translate([cc_x, -(cc_y + cc_wid), module_z])
+  color("purple") translate([cc_x, -(cc_y + cc_wid), cc_z])
     cube([cc_len, cc_wid, cc_t]);
   color("gold") translate([cc_x + cc_len, -(cc_y + sma_from_n), sma_z])
     cyl(d = sma_thread.x, h = sma_body + sma_thread.y, orient = RIGHT,

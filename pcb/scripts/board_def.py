@@ -20,7 +20,7 @@ def uid(name):
 ROOT_UUID = uid("root-sheet")
 
 # --- Board outline -----------------------------------------------------------
-BOARD_W = 56.0  # x
+BOARD_W = 53.5  # x; ends at the CC1101 edge so the SMA barrel overhangs it
 BOARD_H = 32.0  # y
 CORNER_R = 2.0
 HOLE_INSET = 3.0
@@ -78,8 +78,15 @@ J2_PINS = {  # north row = SuperMini right-hand column
 CC_LEN = 28.0
 CC_WID = 15.0
 CC_X = 25.5  # module west edge
-CC_Y = 10.75  # module north edge (pin 1 corner)
-CC_PIN_OFF = 1.5  # G and F in CC1101-Product-size
+# Header columns: first column 1.5 mm from the module's west edge (G).
+CC_COL_OFF = 1.5
+# Header rows are centred on the 15 mm short edge (measured from both
+# CC1101_specs drawings; the table's F = 1.5 does not match the drawing).
+CC_ROW_OFF = (CC_WID - 3 * 2.54) / 2  # 3.69 mm, module north edge -> row 1
+# Pads stay where the routing expects them (row 1 at y = 12.25); the module
+# outline is placed around them.
+CC_ROW1_Y = 12.25
+CC_Y = CC_ROW1_Y - CC_ROW_OFF  # module north edge (pin 1 side), 8.56
 CC_SMA_FROM_N = CC_WID - 8.4  # I = 8.4 mm from the south edge
 J3_PINS = {  # CC1101-Pin-out-1: odd column west, even column east
     1: ("GND", N_GND),
@@ -104,7 +111,7 @@ def j2_pad(n):
 def j3_pad(n):
   col = (n - 1) % 2
   row = (n - 1) // 2
-  return (CC_X + CC_PIN_OFF + PITCH * col, CC_Y + CC_PIN_OFF + PITCH * row)
+  return (CC_X + CC_COL_OFF + PITCH * col, CC_Y + CC_ROW_OFF + PITCH * row)
 
 
 # Decoupling capacitor (pad 1 = +3V3 on the vertical 3V3 trace), just east
