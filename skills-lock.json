@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "skills": {
+    "digikey": {
+      "source": "aklofas/kicad-happy",
+      "sourceType": "github",
+      "skillPath": "skills/digikey/SKILL.md",
+      "computedHash": "cf2d978bfae88125d0947fb19bde7a8b36a826286f2bb6ad486aedfd6cfdddc8"
+    },
+    "lcsc": {
+      "source": "aklofas/kicad-happy",
+      "sourceType": "github",
+      "skillPath": "skills/lcsc/SKILL.md",
+      "computedHash": "fbfc6a4650d975afe332c4c0fd88561e41e0be816a9985c05263734044cc5775"
+    },
+    "mouser": {
+      "source": "aklofas/kicad-happy",
+      "sourceType": "github",
+      "skillPath": "skills/mouser/SKILL.md",
+      "computedHash": "f15a01d2964cc430e2c6b84f089d7aacb691b1a0163c1782c65ca0df28e7b32c"
+    },
+    "openscad-bosl2": {
+      "source": "swh/openscad-skill",
+      "sourceType": "github",
+      "skillPath": "openscad-bosl2/SKILL.md",
+      "computedHash": "01828a6ed26d019650520ca9c4ea48f2428e078e2e13700ec1f37c1e84bd376f"
+    },
+    "plan-pcb-routing": {
+      "source": "drandyhaas/KiCadRoutingTools",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/plan-pcb-routing/SKILL.md",
+      "computedHash": "b02331e143b30183e9aec4b1e536c7410452221b68d3b5d8cb18400ec1aa87b3"
+    }
+  }
+}

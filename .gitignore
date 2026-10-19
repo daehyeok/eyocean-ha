@@ -3,3 +3,65 @@ esphome/.esphome/
 __pycache__/
 *.pyc
 .DS_Store
+._*
+
+
+# Agent local rules (machine-specific / uncommitted)
+.agents/rules/*.local.md
+.agents/rules/local*
+.agents/rules/local/
+
+
+# End of https://www.toptal.com/developers/gitignore/api/emacs,macos,vim,kicad,python
+# KiCad legacy/cache files
+*-cache.lib
+*-rescue.lib
+*-rescue.dcm
+*.drl
+*.lib
+*.dcm
+*.sch
+*.pro
+.history
+
+### KiCad ###
+# For PCBs designed using KiCad: https://www.kicad.org/
+# Format documentation: https://kicad.org/help/file-formats/
+
+# Temporary files
+*.000
+*.bak
+*.bck
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*-backups
+*.kicad_prl
+*.sch-bak
+*~
+_autosave-*
+*.tmp
+*-save.pro
+*-save.kicad_pcb
+fp-info-cache
+
+# Netlist files (exported from Eeschema)
+*.net
+
+# Autorouter files (exported from Pcbnew)
+*.dsn
+*.ses
+
+# Exported BOM files
+*.xml
+*.csv
+
+### KiCad Patch ###
+rescue-backup/
+
+*.tsv
+bom/
+
+# Gerber export output
+out/
+
+# End of https://www.toptal.com/developers/gitignore/api/kicad
